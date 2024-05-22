@@ -25,13 +25,6 @@ prompt = PromptTemplate(
     input_variables=["text"]
 )
 
-combine_prompt = PromptTemplate(
-    template="""Summarize the main points and their comprehensive explanations from the provided text, organizing them under appropriate headings and using various Emoji to symbolize different sections. Format the content as a cohesive paragraph under each heading, ensuring clarity, detail, and informativeness akin to the executive summary style found in news articles. Maintain a direct and objective tone without directly referencing 'the script provides'. \
-    ```{text}```
-    """,
-    input_variables=["text"]
-)
-
 together_llm = Together(
     model="meta-llama/Llama-3-70b-chat-hf",
     temperature=0,
@@ -42,9 +35,8 @@ together_llm = Together(
 
 summarize_chain = load_summarize_chain(
     together_llm,
-    chain_type="map_reduce",
-    map_prompt=prompt,
-    combine_prompt=combine_prompt
+    chain_type="stuff",
+    prompt=prompt,
 )
 
 result = summarize_chain.invoke(docs)
@@ -58,4 +50,3 @@ print(result["output_text"])
 #
 # **The Memoization Conundrum** 🤔
 # Memoization has been a contentious topic in React development, with many questions surrounding its use, including when to employ it, how to use it correctly, and the role of `useCallback` and `useMemo`. Some developers have even opted out of using memoization, deeming it too cumbersome
-
