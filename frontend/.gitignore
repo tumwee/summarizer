@@ -1,0 +1,19 @@
+node_modules
+.expo
+.bundle
+
+# Dependencies
+/node_modules
+/yarn-error.log
+.yarn
+
+android
+ios
+
+# Miscellaneous
+.DS_Store
+.env
+.idea/
+.vscode/
+*.log
+npm-debug.log*
