@@ -4,3 +4,4 @@ Dockerfile
 *.pyd
 __pycache__
 .pytest_cache
+docs/youtube/*
