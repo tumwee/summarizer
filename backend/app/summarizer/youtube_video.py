@@ -26,7 +26,7 @@ def summarize(url):
     together_llm = Together(
         model="meta-llama/Llama-3-70b-chat-hf",
         temperature=0,
-        max_tokens=128,
+        max_tokens=1024,
         top_k=1,
         together_api_key=os.environ.get("TOGETHER_API_KEY")
     )
