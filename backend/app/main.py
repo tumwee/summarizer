@@ -36,7 +36,7 @@ def create_app(testing: bool = True):
 
         youtube_video_url = request.json.get('youtube_video_url')
 
-        if not re.match(r'(https?://)?(www\.)?youtube\.com/watch\?v=[a-zA-Z0-9_-]{11}', youtube_video_url):
+        if not validate_youtube_url(youtube_video_url):
             return jsonify({'error': 'Invalid YouTube URL'}), 400
 
         data = {
@@ -46,3 +46,13 @@ def create_app(testing: bool = True):
         return jsonify(data)
 
     return app
+
+
+def validate_youtube_url(url: str) -> bool:
+    if re.match(r'(https?://)?(www\.)?youtube\.com/watch\?v=[a-zA-Z0-9_-]{11}', url):
+        return True
+
+    if re.match(r'(https?://)?(www\.)?youtu\.be/[a-zA-Z0-9_-]{11}', url):
+        return True
+
+    return False
