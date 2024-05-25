@@ -5,6 +5,8 @@ from langchain_community.document_loaders.blob_loaders.youtube_audio import Yout
 from langchain_together import Together
 from langchain.prompts import PromptTemplate
 from langchain.chains.summarize import load_summarize_chain
+from langchain_core.pydantic_v1 import BaseModel, Field
+from langchain_core.output_parsers import JsonOutputParser
 
 
 def summarize(url):
@@ -25,8 +27,8 @@ def summarize(url):
 
     together_llm = Together(
         model="meta-llama/Llama-3-70b-chat-hf",
-        temperature=0,
-        max_tokens=1024,
+        temperature=0.5,
+        max_tokens=512,
         top_k=1,
         together_api_key=os.environ.get("TOGETHER_API_KEY")
     )
@@ -39,7 +41,46 @@ def summarize(url):
 
     result = summarize_chain.invoke(docs)
 
-    return result["output_text"]
+    return {
+        'summary': result['output_text'],
+        'flashcards': generate_flashcards(result["output_text"])
+    }
+
+
+def generate_flashcards(summary: str) -> list:
+    class Flashcard(BaseModel):
+        concept: str = Field(description="The concept of the flashcard")
+        definition: str = Field(description="The definition of the flashcard")
+
+    parser = JsonOutputParser(pydantic_object=Flashcard)
+
+    template = read_text_file("prompt/dynamo-prompt.txt")
+    examples = read_text_file("prompt/examples.txt")
+
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=["summary", "examples"],
+        partial_variables={"format_instructions": parser.get_format_instructions()}
+    )
+
+    together_llm = Together(
+        model="meta-llama/Llama-3-70b-chat-hf",
+        temperature=0.5,
+        max_tokens=512,
+        top_k=1,
+        together_api_key=os.environ.get("TOGETHER_API_KEY")
+    )
+
+    chain = prompt | together_llm | parser
+
+    response = chain.invoke({"summary": summary, "examples": examples})
+
+    return response
+
+
+def read_text_file(file_path):
+    with open(file_path, 'r') as file:
+        return file.read()
 
 
 def remove_video_files(docs):

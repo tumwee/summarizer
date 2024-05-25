@@ -39,9 +39,7 @@ def create_app(testing: bool = True):
         if not validate_youtube_url(youtube_video_url):
             return jsonify({'error': 'Invalid YouTube URL'}), 400
 
-        data = {
-            'summary': youtube_video.summarize(youtube_video_url)
-        }
+        data = youtube_video.summarize(youtube_video_url)
 
         return jsonify(data)
 
